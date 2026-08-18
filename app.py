@@ -12,6 +12,7 @@ import os
 import time
 import random
 import string
+from datetime import timedelta
 from functools import wraps
 
 from dotenv import load_dotenv
@@ -33,7 +34,7 @@ MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
 app = Flask(__name__, static_folder=BASE_DIR, static_url_path="")
 app.secret_key = os.getenv("SESSION_SECRET", "change_this_secret")
 app.config["MAX_CONTENT_LENGTH"] = MAX_FILE_SIZE
-app.permanent_session_lifetime = 60 * 60 * 2  # 2 hours, mirrors cookie.maxAge
+app.permanent_session_lifetime = timedelta(hours=2)  # 2 hours, mirrors cookie.maxAge
 
 
 # ──────────────────────────────────────────────
@@ -357,19 +358,29 @@ def admin_update_status():
     status = data.get("status")
     role = session.get("role")
 
+    if not app_id or not status:
+        return jsonify({"error": "Application ID and status are required"})
+
     staff_allowed = {"Completed"}
-    senior_allowed = {"Approved", "Rejected", "Pending Verification", "Completed"}
+    senior_allowed = {"Approved", "Rejected", "Pending Verification", "Completed", "Payment Uploaded", "Course Selected", "Started"}
     allowed = staff_allowed if role == "staff" else senior_allowed
 
     if status not in allowed:
         return jsonify({"error": "You do not have permission to set this status"})
 
     try:
-        db.query(
+        _, rowcount = db.query(
             "UPDATE applications SET status=%s WHERE id=%s AND status != 'Locked'",
             (status, app_id),
             fetch=False,
         )
+        if rowcount == 0:
+            # Check if application exists or is locked
+            app_row = db.query("SELECT status FROM applications WHERE id = %s", (app_id,))
+            if not app_row:
+                return jsonify({"error": "Application not found"})
+            if app_row[0]["status"] == "Locked":
+                return jsonify({"error": "Cannot change status of a locked application"})
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"error": str(e)})
