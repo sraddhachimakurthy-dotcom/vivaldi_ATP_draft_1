@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAI PRAVESH — Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0f1117;
+  --surface:  #181c27;
+  --card:     #1e2333;
+  --border:   #2a2f42;
+  --gold:     #c9a84c;
+  --gold-lt:  #e4c97a;
+  --text:     #e8e4d8;
+  --muted:    #7a7f94;
+  --green:    #4caf82;
+  --red:      #e05c5c;
+  --blue:     #5b8dee;
+  --amber:    #e0a050;
+  --radius:   10px;
+  --font-body: 'Nunito', sans-serif;
+  --font-head: 'Cormorant Garamond', serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+
+/* ── LOGIN ── */
+#loginBox {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 40%, #1a1e2e 0%, #0a0c12 100%);
+}
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 48px 40px;
+  width: 360px;
+  text-align: center;
+}
+.login-card h1 { font-family: var(--font-head); font-size: 2rem; color: var(--gold); margin-bottom: 4px; }
+.login-card p  { color: var(--muted); font-size: 0.85rem; margin-bottom: 28px; }
+.login-card input {
+  width: 100%; padding: 11px 14px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text);
+  font-family: var(--font-body); font-size: 0.95rem;
+  margin-bottom: 12px;
+}
+.login-card input:focus { outline: none; border-color: var(--gold); }
+.btn-login {
+  width: 100%; padding: 12px;
+  background: var(--gold); color: #0f1117;
+  border: none; border-radius: var(--radius);
+  font-family: var(--font-head); font-size: 1.1rem; font-weight: 700;
+  cursor: pointer; margin-top: 4px;
+  transition: background 0.2s;
+}
+.btn-login:hover { background: var(--gold-lt); }
+#loginError { color: var(--red); font-size: 0.85rem; margin-top: 10px; }
+
+/* ── DASHBOARD ── */
+#dashboard { display: none; }
+
+.top-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 32px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.top-bar h1 { font-family: var(--font-head); font-size: 1.6rem; color: var(--gold); }
+.top-bar-right { display: flex; gap: 12px; align-items: center; }
+.btn-sm {
+  padding: 7px 16px; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--card); color: var(--text);
+  font-family: var(--font-body); cursor: pointer; font-size: 0.85rem;
+  transition: border-color 0.2s;
+}
+.btn-sm:hover { border-color: var(--gold); color: var(--gold); }
+.btn-sm.danger { border-color: var(--red); color: var(--red); }
+
+.dash-body { padding: 28px 32px; }
+
+/* Stats row */
+.stats-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 16px; text-align: center;
+}
+.stat-num { font-family: var(--font-head); font-size: 2rem; color: var(--gold); }
+.stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Filters */
+.filters { display: flex; gap: 12px; margin-bottom: 18px; align-items: center; }
+.filters input, .filters select {
+  padding: 9px 14px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-family: var(--font-body); font-size: 0.9rem;
+}
+.filters input { flex: 1; }
+.filters input:focus, .filters select:focus { outline: none; border-color: var(--gold); }
+
+/* Table */
+.table-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+table { width: 100%; border-collapse: collapse; }
+thead tr { background: var(--card); }
+th {
+  padding: 13px 16px; text-align: left;
+  font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--muted); font-weight: 600;
+}
+td { padding: 13px 16px; border-top: 1px solid var(--border); font-size: 0.9rem; }
+tr:hover td { background: rgba(201,168,76,0.04); }
+
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 0.75rem; font-weight: 600;
+}
+.badge-started   { background: rgba(90,141,238,0.15); color: var(--blue); }
+.badge-completed { background: rgba(76,175,130,0.15); color: var(--green); }
+.badge-approved  { background: rgba(76,175,130,0.25); color: var(--green); }
+.badge-rejected  { background: rgba(224,92,92,0.15);  color: var(--red); }
+.badge-locked    { background: rgba(122,127,148,0.2); color: var(--muted); }
+.badge-payment   { background: rgba(224,160,80,0.15); color: var(--amber); }
+.badge-course    { background: rgba(90,141,238,0.1); color: var(--blue); }
+
+.action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.btn-act {
+  padding: 5px 11px; border-radius: 6px; font-size: 0.78rem;
+  border: none; cursor: pointer; font-family: var(--font-body); font-weight: 600;
+  transition: opacity 0.15s;
+}
+.btn-act:hover { opacity: 0.8; }
+.btn-view   { background: rgba(90,141,238,0.2); color: var(--blue); }
+.btn-approve{ background: rgba(76,175,130,0.2); color: var(--green); }
+.btn-reject { background: rgba(224,92,92,0.2);  color: var(--red); }
+.btn-lock   { background: rgba(122,127,148,0.2); color: var(--muted); }
+
+/* Upload section */
+.upload-section {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px 24px; margin-bottom: 28px;
+}
+.upload-section h3 { font-family: var(--font-head); color: var(--gold); margin-bottom: 14px; font-size: 1.2rem; }
+.upload-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.upload-row input[type="text"], .upload-row input[type="file"] {
+  padding: 9px 13px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-family: var(--font-body); font-size: 0.9rem;
+}
+.upload-row input[type="text"] { flex: 1; min-width: 200px; }
+.btn-upload {
+  padding: 9px 20px; background: var(--gold); color: #0f1117;
+  border: none; border-radius: 8px; cursor: pointer;
+  font-family: var(--font-head); font-size: 1rem; font-weight: 700;
+}
+
+/* POPUP */
+.popup-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+  display: none; align-items: center; justify-content: center;
+  z-index: 999; padding: 20px;
+}
+.popup-overlay.active { display: flex; }
+.popup-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px; width: 100%; max-width: 660px;
+  max-height: 90vh; overflow-y: auto;
+}
+.popup-box h3 { font-family: var(--font-head); font-size: 1.6rem; color: var(--gold); margin-bottom: 20px; }
+.popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.popup-field label { font-size: 0.72rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; }
+.popup-field p { font-size: 0.95rem; margin-top: 3px; }
+.popup-img { width: 100%; max-width: 340px; border-radius: 8px; border: 1px solid var(--border); margin: 12px 0; }
+.popup-close {
+  padding: 9px 22px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); cursor: pointer; font-family: var(--font-body);
+  margin-top: 10px;
+}
+
+.empty-row td { text-align: center; color: var(--muted); padding: 32px; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginBox">
+  <div class="login-card">
+    <h1>SAI PRAVESH</h1>
+    <p>Administrative Portal</p>
+    <input id="adminUser" type="text" placeholder="Username" autocomplete="off">
+    <input id="adminPass" type="password" placeholder="Password">
+    <button class="btn-login" onclick="adminLogin()">Sign In</button>
+    <p id="loginError"></p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+  <div class="top-bar">
+    <h1>SAI PRAVESH — Admin</h1>
+    <div class="top-bar-right">
+      <span id="loggedInAs" style="color:var(--muted);font-size:0.85rem;margin-right:8px;"></span>
+      <button class="btn-sm" onclick="refreshAll()">↻ Refresh</button>
+      <button class="btn-sm danger" onclick="adminLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="dash-body">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="st-total">—</div><div class="stat-label">Total</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-started">—</div><div class="stat-label">Started</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-completed">—</div><div class="stat-label">Completed</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-approved">—</div><div class="stat-label">Approved</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-rejected">—</div><div class="stat-label">Rejected</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-locked">—</div><div class="stat-label">Locked</div></div>
+    </div>
+
+    <!-- Upload forms -->
+    <div class="upload-section" id="uploadSection">
+      <h3>Upload Document / Form</h3>
+      <div class="upload-row">
+        <input type="text" id="docName" placeholder="Document name (e.g. Joining Information for New Joiners)">
+        <input type="file" id="docFile" accept=".pdf,.jpg,.png">
+        <button class="btn-upload" onclick="uploadDoc()">Upload</button>
+      </div>
+      <p id="uploadMsg" style="color:var(--green);font-size:0.85rem;margin-top:8px;"></p>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <input id="searchInput" type="text" placeholder="Search by name or application number…" oninput="filterTable()">
+      <select id="statusFilter" onchange="filterTable()">
+        <option value="">All Statuses</option>
+        <option>Started</option>
+        <option>Course Selected</option>
+        <option>Payment Uploaded</option>
+        <option>Completed</option>
+        <option>Approved</option>
+        <option>Rejected</option>
+        <option>Locked</option>
+      </select>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>App No.</th>
+            <th>Name</th>
+            <th>Course</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="appTable"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- POPUP -->
+<div class="popup-overlay" id="popupOverlay" onclick="closePopup(event)">
+  <div class="popup-box" id="popupContent"></div>
+</div>
+
+<script>
+let allApps = [];
+
+/* ── LOGIN ── */
+function adminLogin() {
+  const u = document.getElementById("adminUser").value.trim();
+  const p = document.getElementById("adminPass").value;
+  if (!u || !p) { document.getElementById("loginError").textContent = "Please enter credentials"; return; }
+
+  fetch("/admin/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: u, password: p })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+      refreshAll();
+    } else {
+      document.getElementById("loginError").textContent = d.error || "Invalid credentials";
+    }
+  });
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && document.getElementById("loginBox").style.display !== "none") adminLogin();
+});
+
+function adminLogout() {
+  fetch("/admin/logout", { method: "POST" }).then(() => location.reload());
+}
+
+/* ── REFRESH ── */
+function refreshAll() { loadStats(); loadApps(); }
+
+/* ── STATS ── */
+function loadStats() {
+  fetch("/admin/stats")
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById("st-total").textContent     = d.total || 0;
+    document.getElementById("st-started").textContent   = (d.started || 0);
+    document.getElementById("st-completed").textContent = d.completed || 0;
+    document.getElementById("st-approved").textContent  = d.approved || 0;
+    document.getElementById("st-rejected").textContent  = d.rejected || 0;
+    document.getElementById("st-locked").textContent    = d.locked || 0;
+  });
+}
+
+/* ── APPS TABLE ── */
+function loadApps() {
+  fetch("/admin/applications")
+  .then(r => r.json())
+  .then(data => {
+    allApps = data;
+    renderTable(data);
+  });
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById("appTable");
+  if (!data.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No applications found</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map((a, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${a.admission_number || "—"}</td>
+      <td>${a.full_name}</td>
+      <td>${a.course_name || "<span style='color:var(--muted)'>Not selected</span>"}</td>
+      <td><span class="badge ${badgeClass(a.status)}">${a.status}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-act btn-view"    onclick="viewApp(${a.id})">View</button>
+          ${a.status !== "Locked" ? `
+          <button class="btn-act btn-approve" onclick="updateStatus(${a.id},'Approved')">Approve</button>
+          <button class="btn-act btn-reject"  onclick="updateStatus(${a.id},'Rejected')">Reject</button>
+          <button class="btn-act btn-lock"    onclick="lockApp(${a.id})">Lock</button>
+          ` : `<span style="color:var(--muted);font-size:0.8rem;">🔒 Locked</span>`}
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function badgeClass(status) {
+  const map = {
+    "Started": "badge-started", "Course Selected": "badge-course",
+    "Payment Uploaded": "badge-payment", "Completed": "badge-completed",
+    "Approved": "badge-approved", "Rejected": "badge-rejected", "Locked": "badge-locked"
+  };
+  return map[status] || "badge-started";
+}
+
+/* ── FILTER ── */
+function filterTable() {
+  const q = document.getElementById("searchInput").value.toLowerCase();
+  const s = document.getElementById("statusFilter").value;
+  const filtered = allApps.filter(a =>
+    (!q || a.full_name.toLowerCase().includes(q) || (a.admission_number || "").toLowerCase().includes(q)) &&
+    (!s || a.status === s)
+  );
+  renderTable(filtered);
+}
+
+/* ── VIEW POPUP ── */
+function viewApp(id) {
+  fetch(`/admin/application/${id}`)
+  .then(r => r.json())
+  .then(d => {
+    if (d.error) return alert(d.error);
+    document.getElementById("popupContent").innerHTML = `
+      <h3>${d.full_name}</h3>
+      <div class="popup-grid">
+        <div class="popup-field"><label>Application No</label><p>${d.admission_number || "—"}</p></div>
+        <div class="popup-field"><label>Email</label><p>${d.email || "—"}</p></div>
+        <div class="popup-field"><label>Mobile</label><p>${d.mobile || "—"}</p></div>
+        <div class="popup-field"><label>DOB</label><p>${d.dob ? new Date(d.dob).toLocaleDateString("en-IN") : "—"}</p></div>
+        <div class="popup-field"><label>Category</label><p>${d.category || "—"}</p></div>
+        <div class="popup-field"><label>Status</label><p><span class="badge ${badgeClass(d.status)}">${d.status}</span></p></div>
+        <div class="popup-field"><label>Course Level</label><p>${d.course_level || "—"}</p></div>
+        <div class="popup-field" style="grid-column:span 1"><label>Programme</label><p>${d.course_name || "—"}</p></div>
+      </div>
+
+      ${d.screenshot_path ? `
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Payment Proof</p>
+        <img src="/uploads/${d.screenshot_path}" class="popup-img" onerror="this.style.display='none'">
+      ` : "<p style='color:var(--muted)'>No payment uploaded yet</p>"}
+
+      ${d.age ? `
+        <p style="font-size:0.8rem;color:var(--muted);margin:16px 0 8px;text-transform:uppercase;letter-spacing:.05em;">Health Record</p>
+        <div class="popup-grid">
+          <div class="popup-field"><label>Age</label><p>${d.age}</p></div>
+          <div class="popup-field"><label>Blood Group</label><p>${d.blood_group}</p></div>
+          <div class="popup-field"><label>Height</label><p>${d.height_cm} cm</p></div>
+          <div class="popup-field"><label>Weight</label><p>${d.weight_kg} kg</p></div>
+          <div class="popup-field"><label>Asthma</label><p>${d.asthma}</p></div>
+          <div class="popup-field"><label>Diabetes</label><p>${d.diabetes}</p></div>
+          <div class="popup-field"><label>Epilepsy</label><p>${d.epilepsy}</p></div>
+          <div class="popup-field"><label>Cardiac</label><p>${d.cardiac}</p></div>
+          <div class="popup-field"><label>COVID Doses</label><p>${d.covid_dose || "—"}</p></div>
+          <div class="popup-field"><label>Hep B</label><p>${d.hep_b}</p></div>
+        </div>
+      ` : ""}
+
+      <button class="popup-close" onclick="closePopup()">Close</button>
+    `;
+    document.getElementById("popupOverlay").classList.add("active");
+  });
+}
+
+function closePopup(e) {
+  if (!e || e.target === document.getElementById("popupOverlay"))
+    document.getElementById("popupOverlay").classList.remove("active");
+}
+
+/* ── STATUS UPDATE ── */
+function updateStatus(id, status) {
+  if (!confirm(`Set application #${id} to "${status}"?`)) return;
+  fetch("/admin/status", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, status })
+  }).then(() => refreshAll());
+}
+
+function lockApp(id) {
+  if (!confirm(`Lock application #${id}? This cannot be undone.`)) return;
+  fetch("/admin/lock", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id })
+  }).then(() => refreshAll());
+}
+
+/* ── UPLOAD DOC ── */
+function uploadDoc() {
+  const name = document.getElementById("docName").value.trim();
+  const file = document.getElementById("docFile").files[0];
+  const msg  = document.getElementById("uploadMsg");
+
+  if (!name || !file) { msg.style.color = "var(--red)"; msg.textContent = "Please enter a name and select a file"; return; }
+
+  const fd = new FormData();
+  fd.append("doc_name", name);
+  fd.append("file", file);
+
+  fetch("/admin/upload", { method: "POST", body: fd })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      msg.style.color = "var(--green)";
+      msg.textContent = "✓ Document uploaded successfully";
+      document.getElementById("docName").value = "";
+      document.getElementById("docFile").value = "";
+    } else {
+      msg.style.color = "var(--red)";
+      msg.textContent = d.error || "Upload failed";
+    }
+  });
+}
+</script>
+</body>
+</html>

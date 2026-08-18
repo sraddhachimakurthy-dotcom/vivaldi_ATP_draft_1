@@ -1,0 +1,48 @@
+body {
+  font-family: Arial;
+  background: #eaf4ff;
+}
+
+header {
+  background: #003366;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+nav button {
+  color: white;
+  background: none;
+  border: none;
+  margin: 10px;
+}
+
+.page {
+  display: none;
+  padding: 30px;
+}
+
+.page.active {
+  display: block;
+}
+
+.center-page {
+  text-align: center;
+}
+
+.forms-list {
+  max-width: 400px;
+  margin: auto;
+  text-align: left;
+}
+
+.forms-list li {
+  margin: 10px 0;
+}
+
+.help-box {
+  background: white;
+  padding: 20px;
+  width: 300px;
+  margin: auto;
+}

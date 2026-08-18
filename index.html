@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAI PRAVESH _ Anantapur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <img src="/logo.png" alt="SSSIHL" class="header-logo" onerror="this.style.display='none'">
+      <div class="header-text">
+        <span class="header-title">SAI PRAVESH</span>
+        <span class="header-sub">Sri Sathya Sai Institute of Higher Learning , Anantapur</span>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <button onclick="showPage('landing-page')">Home</button>
+      <button onclick="showPage('forms-page')">Forms</button>
+      <button onclick="showPage('status-page')">Status</button>
+      <button onclick="showPage('help-page')">Help</button>
+      <button class="btn-admin" onclick="window.open('/admin.html','_blank')">Admin</button>
+    </nav>
+  </div>
+</header>
+
+<!-- PROGRESS BAR (shown during steps) -->
+<div id="progress-bar" class="progress-bar hidden">
+  <div class="step" id="step-1">1<span>Details</span></div>
+  <div class="step-line"></div>
+  <div class="step" id="step-2">2<span>Course</span></div>
+  <div class="step-line"></div>
+  <div class="step" id="step-3">3<span>Payment</span></div>
+  <div class="step-line"></div>
+  <div class="step" id="step-4">4<span>Health</span></div>
+  <div class="step-line"></div>
+  <div class="step" id="step-5">5<span>Done</span></div>
+</div>
+
+<!-- ═══════════════ LANDING PAGE ═══════════════ -->
+<section id="landing-page" class="page active">
+  <div class="slideshow">
+    <div class="slide active" style="background-image:url('/atp.jpg')"></div>
+    <div class="slide" style="background-image:url('/swami.jpg')"></div>
+    <div class="slide" style="background-image:url('/campus.jpg')"></div>
+    <div class="slide-overlay"></div>
+  </div>
+
+  <div class="landing-content">
+    <p class="landing-greeting">SAIRAM</p>
+    <h1 class="landing-title">SAI PRAVESH</h1>
+    <p class="landing-subtitle">
+      Online Admission & Student Onboarding Portal<br>
+      Sri Sathya Sai Institute of Higher Learning , Anantapur Campus
+    </p>
+    <button class="btn-primary btn-large" onclick="startApplication()">
+      START ›
+    </button>
+  </div>
+</section>
+
+<!-- ═══════════════ STEP 1 — ADMISSION DETAILS ═══════════════ -->
+<section id="page1" class="page">
+  <div class="form-container">
+    <div class="form-card">
+      <h2 class="form-title">Admission Details</h2>
+      <p class="form-subtitle">Enter your details exactly as in your admission letter</p>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Application Number <span class="req">*</span></label>
+          <input id="admissionNumber" type="text" placeholder="e.g. ATP2025001">
+        </div>
+        <div class="field">
+          <label>Full Name <span class="req">*</span></label>
+          <input id="candidateName" type="text" placeholder="As on certificate">
+        </div>
+        <div class="field">
+          <label>Date of Birth</label>
+          <input id="dob" type="date">
+        </div>
+        <div class="field">
+          <label>Email Address</label>
+          <input id="email" type="email" placeholder="your@email.com">
+        </div>
+        <div class="field">
+          <label>Mobile Number</label>
+          <input id="mobile" type="tel" placeholder="+91 XXXXX XXXXX">
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <select id="category">
+            <option value="">-- Select --</option>
+            <option value="UG">Undergraduate (UG)</option>
+            <option value="PG">Postgraduate (PG)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="declaration-box">
+        <label class="checkbox-label">
+          <input type="checkbox" id="decl1">
+          I declare that the information provided is true and correct to the best of my knowledge.
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary" onclick="saveApplication()">Next →</button>
+      </div>
+      <p id="error-page1" class="error-msg"></p>
+    </div>
+  </div>
+</section>
+
+
+<section id="page2" class="page">
+  <div class="form-container">
+    <div class="form-card">
+      <h2 class="form-title">Academic Programme</h2>
+      <p class="form-subtitle">Select the programme for which admission has been granted</p>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Programme Level <span class="req">*</span></label>
+          <select id="courseLevel">
+            <option value="">-- Select Level --</option>
+            <option value="Undergraduate">Undergraduate</option>
+            <option value="Postgraduate">Postgraduate</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Programme Name <span class="req">*</span></label>
+          <select id="courseName">
+            <option value="">-- Select Programme --</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="declaration-box">
+        <label class="checkbox-label">
+          <input type="checkbox" id="decl2">
+          I confirm the selected programme matches the offer given to me by the University.
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-secondary" onclick="showPage('page1')">← Back</button>
+        <button class="btn-primary" onclick="saveCourse()">Next →</button>
+      </div>
+      <p id="error-page2" class="error-msg"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ STEP 3 — PAYMENT ═══════════════ -->
+<section id="payment-page" class="page">
+  <div class="form-container">
+    <div class="form-card">
+      <h2 class="form-title">Payment Confirmation</h2>
+      <p class="form-subtitle">Upload your admission fee payment proof</p>
+
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('paymentFile').click()">
+        <div class="upload-icon">📎</div>
+        <p>Click to select file</p>
+        <p class="upload-hint">JPG · PNG · PDF — Max 5MB</p>
+        <input type="file" id="paymentFile" accept=".jpg,.jpeg,.png,.pdf" onchange="previewFile(this)">
+      </div>
+      <p id="file-preview" class="file-preview-name"></p>
+
+      <div class="info-box">
+        <p>✔ Ensure the transaction number is clearly visible</p>
+        <p>✔ Upload only valid payment receipts</p>
+        <p>✔ Any discrepancy may delay verification</p>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-secondary" onclick="showPage('page2')">← Back</button>
+        <button class="btn-primary" onclick="uploadPayment()">Upload & Continue →</button>
+      </div>
+      <p id="error-payment" class="error-msg"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ STEP 4 — HEALTH RECORD ═══════════════ -->
+<section id="health-page" class="page">
+  <div class="form-container">
+    <div class="form-card wide-card">
+      <h2 class="form-title">Health Record</h2>
+      <p class="form-subtitle">Maintained for student safety and emergency support</p>
+
+      <h3 class="section-label">Physical Information</h3>
+      <div class="form-grid">
+        <div class="field">
+          <label>Age <span class="req">*</span></label>
+          <input id="age" type="number" min="15" max="40" placeholder="Years">
+        </div>
+        <div class="field">
+          <label>Height (cm)</label>
+          <input id="height" type="number" placeholder="e.g. 165">
+        </div>
+        <div class="field">
+          <label>Weight (kg)</label>
+          <input id="weight" type="number" placeholder="e.g. 55">
+        </div>
+        <div class="field">
+          <label>Blood Group <span class="req">*</span></label>
+          <select id="bloodGroup">
+            <option value="">-- Select --</option>
+            <option>A+</option><option>A-</option>
+            <option>B+</option><option>B-</option>
+            <option>O+</option><option>O-</option>
+            <option>AB+</option><option>AB-</option>
+          </select>
+        </div>
+        <div class="field full-width">
+          <label>Identification Mark 1</label>
+          <input id="idMark1" type="text" placeholder="e.g. Mole on right cheek">
+        </div>
+        <div class="field full-width">
+          <label>Identification Mark 2</label>
+          <input id="idMark2" type="text" placeholder="e.g. Scar on left hand">
+        </div>
+      </div>
+
+      <h3 class="section-label">Medical History — Personal</h3>
+      <div class="form-grid-4">
+        <div class="field">
+          <label>Asthma</label>
+          <select id="asthma"><option value="No">No</option><option value="Yes">Yes</option></select>
+        </div>
+        <div class="field">
+          <label>Diabetes</label>
+          <select id="diabetes"><option value="No">No</option><option value="Yes">Yes</option></select>
+        </div>
+        <div class="field">
+          <label>Epilepsy</label>
+          <select id="epilepsy"><option value="No">No</option><option value="Yes">Yes</option></select>
+        </div>
+        <div class="field">
+          <label>Cardiac Issues</label>
+          <select id="cardiac"><option value="No">No</option><option value="Yes">Yes</option></select>
+        </div>
+        <div class="field">
+          <label>Tuberculosis</label>
+          <select id="tb"><option value="No">No</option><option value="Yes">Yes</option></select>
+        </div>
+        <div class="field">
+          <label>Hepatitis B</label>
+          <select id="hepb"><option value="No">No</option><option value="Yes">Yes</option></select>
+        </div>
+        <div class="field">
+          <label>COVID Doses</label>
+          <select id="covidDose">
+            <option value="">-- Select --</option>
+            <option>0</option><option>1</option><option>2</option><option>3</option>
+          </select>
+        </div>
+      </div>
+
+      <h3 class="section-label">Family Medical History</h3>
+      <div class="form-grid-4">
+        <div class="field">
+          <label>Diabetes (Family)</label>
+          <select id="famDiabetes"><option value="No">No</option><option value="Yes">Yes</option></select>
+        </div>
+        <div class="field">
+          <label>Epilepsy (Family)</label>
+          <select id="famEpilepsy"><option value="No">No</option><option value="Yes">Yes</option></select>
+        </div>
+        <div class="field">
+          <label>TB (Family)</label>
+          <select id="famTB"><option value="No">No</option><option value="Yes">Yes</option></select>
+        </div>
+      </div>
+
+      <div class="declaration-box">
+        <label class="checkbox-label">
+          <input type="checkbox" id="decl4">
+          I certify that the above health information is accurate and complete to the best of my knowledge.
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-secondary" onclick="showPage('payment-page')">← Back</button>
+        <button class="btn-primary" onclick="saveHealth()">Submit →</button>
+      </div>
+      <p id="error-health" class="error-msg"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ STEP 5 — SUCCESS ═══════════════ -->
+<section id="success-page" class="page">
+  <div class="success-container">
+    <div class="success-icon">✓</div>
+    <h2>Application Submitted</h2>
+    <p>Your admission workflow has been completed and submitted for verification.</p>
+
+    <div class="success-appid">
+      Application ID: <strong id="success-app-id">—</strong>
+    </div>
+
+    <div class="next-steps">
+      <h3>What Happens Next</h3>
+      <ul>
+        <li>Your details will be reviewed by the Admissions Team</li>
+        <li>Payment information will be verified</li>
+        <li>Health records will be registered</li>
+        <li>Final approval will be communicated through this portal</li>
+      </ul>
+    </div>
+
+    <button class="btn-primary" onclick="showPage('status-page')">Check Status</button>
+  </div>
+</section>
+
+<!-- ═══════════════ STATUS PAGE ═══════════════ -->
+<section id="status-page" class="page">
+  <div class="form-container">
+    <div class="form-card">
+      <h2 class="form-title">Application Status</h2>
+      <p class="form-subtitle">Enter your application number to check current status</p>
+
+      <div class="field">
+        <label>Application Number</label>
+        <input id="statusInput" type="text" placeholder="e.g. ATP2025001">
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary" onclick="checkStatus()">Check Status</button>
+      </div>
+
+      <div id="statusResult" class="status-result hidden">
+        <p class="status-label">Status</p>
+        <p id="statusText" class="status-value"></p>
+        <p id="statusName" class="status-name"></p>
+        <p id="statusCourse" class="status-course"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FORMS PAGE ═══════════════ -->
+<section id="forms-page" class="page">
+  <div class="form-container">
+    <div class="form-card">
+      <h2 class="form-title">Forms & Instructions</h2>
+      <p class="form-subtitle">Download and review all required documents</p>
+
+      <div id="forms-list" class="forms-list">
+        <p class="loading-text">Loading documents…</p>
+      </div>
+
+      <!-- Static always-available links -->
+      <div class="forms-static">
+        <a href="https://www.antiragging.in/affidavit_registration_disclaimer.html" target="_blank" class="form-item">
+          <span class="form-icon">🔗</span>
+          <span>Anti-Ragging Undertaking (Official Website)</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ HELP PAGE ═══════════════ -->
+<section id="help-page" class="page">
+  <div class="form-container">
+    <div class="form-card">
+      <h2 class="form-title">Help & Contact</h2>
+      <p class="form-subtitle">We're here to assist you</p>
+
+      <div class="help-grid">
+        <div class="help-card">
+          <div class="help-icon">🕐</div>
+          <h4>Support Hours</h4>
+          <p>Monday – Friday<br>9:00 AM – 5:00 PM</p>
+        </div>
+        <div class="help-card">
+          <div class="help-icon">✉</div>
+          <h4>Email</h4>
+          <p><a href="mailto:admissions@sssihl.edu.in">admissions@sssihl.edu.in</a></p>
+        </div>
+        <div class="help-card">
+          <div class="help-icon">📞</div>
+          <h4>Phone</h4>
+          <p>+91 08556 287239</p>
+        </div>
+      </div>
+
+      <div class="address-box">
+        Sri Sathya Sai Institute of Higher Learning<br>
+        Anantapur Campus, Anantapur — 515001<br>
+        Andhra Pradesh, India
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <p>© Sri Sathya Sai Institute of Higher Learning — Anantapur Campus</p>
+  <p>SAI PRAVESH Admission Management System &nbsp;·&nbsp; Version 1.0</p>
+</footer>
+
+<script src="/script.js"></script>
+</body>
+</html>
