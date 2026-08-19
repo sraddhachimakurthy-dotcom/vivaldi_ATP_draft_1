@@ -6,6 +6,7 @@
 <title>SAI PRAVESH — Admin Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/admin.css">
 <style>
 :root {
   --bg:       #0f1117;
@@ -274,210 +275,25 @@ tr:hover td { background: rgba(201,168,76,0.04); }
   <div class="popup-box" id="popupContent"></div>
 </div>
 
+<script src="/admin.js"></script>
 <script>
-let allApps = [];
-
-/* ── LOGIN ── */
-function adminLogin() {
-  const u = document.getElementById("adminUser").value.trim();
-  const p = document.getElementById("adminPass").value;
-  if (!u || !p) { document.getElementById("loginError").textContent = "Please enter credentials"; return; }
-
-  fetch("/admin/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username: u, password: p })
-  })
+// Check session state on load
+fetch("/admin/me")
   .then(r => r.json())
   .then(d => {
-    if (d.success) {
+    if (d.loggedIn) {
+      currentRole = d.role;
+      currentName = d.name;
       document.getElementById("loginBox").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
+      document.getElementById("loggedInAs").textContent = `${currentName} (${currentRole})`;
+      if (currentRole !== "superadmin") {
+        const uploadSec = document.getElementById("uploadSection");
+        if (uploadSec) uploadSec.style.display = "none";
+      }
       refreshAll();
-    } else {
-      document.getElementById("loginError").textContent = d.error || "Invalid credentials";
     }
   });
-}
-
-document.addEventListener("keydown", e => {
-  if (e.key === "Enter" && document.getElementById("loginBox").style.display !== "none") adminLogin();
-});
-
-function adminLogout() {
-  fetch("/admin/logout", { method: "POST" }).then(() => location.reload());
-}
-
-/* ── REFRESH ── */
-function refreshAll() { loadStats(); loadApps(); }
-
-/* ── STATS ── */
-function loadStats() {
-  fetch("/admin/stats")
-  .then(r => r.json())
-  .then(d => {
-    document.getElementById("st-total").textContent     = d.total || 0;
-    document.getElementById("st-started").textContent   = (d.started || 0);
-    document.getElementById("st-completed").textContent = d.completed || 0;
-    document.getElementById("st-approved").textContent  = d.approved || 0;
-    document.getElementById("st-rejected").textContent  = d.rejected || 0;
-    document.getElementById("st-locked").textContent    = d.locked || 0;
-  });
-}
-
-/* ── APPS TABLE ── */
-function loadApps() {
-  fetch("/admin/applications")
-  .then(r => r.json())
-  .then(data => {
-    allApps = data;
-    renderTable(data);
-  });
-}
-
-function renderTable(data) {
-  const tbody = document.getElementById("appTable");
-  if (!data.length) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No applications found</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = data.map((a, i) => `
-    <tr>
-      <td>${i + 1}</td>
-      <td>${a.admission_number || "—"}</td>
-      <td>${a.full_name}</td>
-      <td>${a.course_name || "<span style='color:var(--muted)'>Not selected</span>"}</td>
-      <td><span class="badge ${badgeClass(a.status)}">${a.status}</span></td>
-      <td>
-        <div class="action-btns">
-          <button class="btn-act btn-view"    onclick="viewApp(${a.id})">View</button>
-          ${a.status !== "Locked" ? `
-          <button class="btn-act btn-approve" onclick="updateStatus(${a.id},'Approved')">Approve</button>
-          <button class="btn-act btn-reject"  onclick="updateStatus(${a.id},'Rejected')">Reject</button>
-          <button class="btn-act btn-lock"    onclick="lockApp(${a.id})">Lock</button>
-          ` : `<span style="color:var(--muted);font-size:0.8rem;">🔒 Locked</span>`}
-        </div>
-      </td>
-    </tr>
-  `).join("");
-}
-
-function badgeClass(status) {
-  const map = {
-    "Started": "badge-started", "Course Selected": "badge-course",
-    "Payment Uploaded": "badge-payment", "Completed": "badge-completed",
-    "Approved": "badge-approved", "Rejected": "badge-rejected", "Locked": "badge-locked"
-  };
-  return map[status] || "badge-started";
-}
-
-/* ── FILTER ── */
-function filterTable() {
-  const q = document.getElementById("searchInput").value.toLowerCase();
-  const s = document.getElementById("statusFilter").value;
-  const filtered = allApps.filter(a =>
-    (!q || a.full_name.toLowerCase().includes(q) || (a.admission_number || "").toLowerCase().includes(q)) &&
-    (!s || a.status === s)
-  );
-  renderTable(filtered);
-}
-
-/* ── VIEW POPUP ── */
-function viewApp(id) {
-  fetch(`/admin/application/${id}`)
-  .then(r => r.json())
-  .then(d => {
-    if (d.error) return alert(d.error);
-    document.getElementById("popupContent").innerHTML = `
-      <h3>${d.full_name}</h3>
-      <div class="popup-grid">
-        <div class="popup-field"><label>Application No</label><p>${d.admission_number || "—"}</p></div>
-        <div class="popup-field"><label>Email</label><p>${d.email || "—"}</p></div>
-        <div class="popup-field"><label>Mobile</label><p>${d.mobile || "—"}</p></div>
-        <div class="popup-field"><label>DOB</label><p>${d.dob ? new Date(d.dob).toLocaleDateString("en-IN") : "—"}</p></div>
-        <div class="popup-field"><label>Category</label><p>${d.category || "—"}</p></div>
-        <div class="popup-field"><label>Status</label><p><span class="badge ${badgeClass(d.status)}">${d.status}</span></p></div>
-        <div class="popup-field"><label>Course Level</label><p>${d.course_level || "—"}</p></div>
-        <div class="popup-field" style="grid-column:span 1"><label>Programme</label><p>${d.course_name || "—"}</p></div>
-      </div>
-
-      ${d.screenshot_path ? `
-        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;">Payment Proof</p>
-        <img src="/uploads/${d.screenshot_path}" class="popup-img" onerror="this.style.display='none'">
-      ` : "<p style='color:var(--muted)'>No payment uploaded yet</p>"}
-
-      ${d.age ? `
-        <p style="font-size:0.8rem;color:var(--muted);margin:16px 0 8px;text-transform:uppercase;letter-spacing:.05em;">Health Record</p>
-        <div class="popup-grid">
-          <div class="popup-field"><label>Age</label><p>${d.age}</p></div>
-          <div class="popup-field"><label>Blood Group</label><p>${d.blood_group}</p></div>
-          <div class="popup-field"><label>Height</label><p>${d.height_cm} cm</p></div>
-          <div class="popup-field"><label>Weight</label><p>${d.weight_kg} kg</p></div>
-          <div class="popup-field"><label>Asthma</label><p>${d.asthma}</p></div>
-          <div class="popup-field"><label>Diabetes</label><p>${d.diabetes}</p></div>
-          <div class="popup-field"><label>Epilepsy</label><p>${d.epilepsy}</p></div>
-          <div class="popup-field"><label>Cardiac</label><p>${d.cardiac}</p></div>
-          <div class="popup-field"><label>COVID Doses</label><p>${d.covid_dose || "—"}</p></div>
-          <div class="popup-field"><label>Hep B</label><p>${d.hep_b}</p></div>
-        </div>
-      ` : ""}
-
-      <button class="popup-close" onclick="closePopup()">Close</button>
-    `;
-    document.getElementById("popupOverlay").classList.add("active");
-  });
-}
-
-function closePopup(e) {
-  if (!e || e.target === document.getElementById("popupOverlay"))
-    document.getElementById("popupOverlay").classList.remove("active");
-}
-
-/* ── STATUS UPDATE ── */
-function updateStatus(id, status) {
-  if (!confirm(`Set application #${id} to "${status}"?`)) return;
-  fetch("/admin/status", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, status })
-  }).then(() => refreshAll());
-}
-
-function lockApp(id) {
-  if (!confirm(`Lock application #${id}? This cannot be undone.`)) return;
-  fetch("/admin/lock", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id })
-  }).then(() => refreshAll());
-}
-
-/* ── UPLOAD DOC ── */
-function uploadDoc() {
-  const name = document.getElementById("docName").value.trim();
-  const file = document.getElementById("docFile").files[0];
-  const msg  = document.getElementById("uploadMsg");
-
-  if (!name || !file) { msg.style.color = "var(--red)"; msg.textContent = "Please enter a name and select a file"; return; }
-
-  const fd = new FormData();
-  fd.append("doc_name", name);
-  fd.append("file", file);
-
-  fetch("/admin/upload", { method: "POST", body: fd })
-  .then(r => r.json())
-  .then(d => {
-    if (d.success) {
-      msg.style.color = "var(--green)";
-      msg.textContent = "✓ Document uploaded successfully";
-      document.getElementById("docName").value = "";
-      document.getElementById("docFile").value = "";
-    } else {
-      msg.style.color = "var(--red)";
-      msg.textContent = d.error || "Upload failed";
-    }
-  });
-}
 </script>
 </body>
 </html>
